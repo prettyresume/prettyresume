@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>PrettyResu.me</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- json editor -->
+  <link rel="stylesheet" type="text/css" href="jsoneditor.min.css">
+  <script type="text/javascript" src="jsoneditor.min.js"></script>
+
+  <!-- ace editor -->
+  <script type="text/javascript" src="asset/ace/ace.js"></script>
+
+  <!-- json lint -->
+  <script type="text/javascript" src="asset/jsonlint/jsonlint.js"></script>
+
+  <style type="text/css">
+    body {
+      font: 10.5pt arial;
+      color: #4d4d4d;
+      line-height: 150%;
+    }
+
+    code {
+      background-color: #f5f5f5;
+    }
+
+    #jsoneditor {
+         height: 600px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="jsoneditor"></div>
+
+<script type="text/javascript" >
+  var container = document.getElementById('jsoneditor');
+
+  var options = {
+    mode: 'tree',
+    name: 'resume',
+    modes: ['tree', 'code'], //['code', 'form', 'text', 'tree', 'view'], // allowed modes
+    error: function (err) {
+      alert(err.toString());
+    },
+  editable: function (node) {
+    switch (node.field) {
+      default:
+        return {
+          field: false,
+          value: true
+        };
+    }
+  }
+  };
+
+  var xmlHttp = null;
+  var theUrl = "https://gist.githubusercontent.com/prat0318/6e57f270bcf710a9087f/raw/a9b24e09d97ecd54fe59c5e164314a8f2b560cd8/resume.json";
+
+  xmlHttp = new XMLHttpRequest();
+  xmlHttp.open( "GET", theUrl, false );
+  xmlHttp.send( null );
+  json = JSON.parse(xmlHttp.responseText);
+
+  var editor = new JSONEditor(container, options, json);
+  len = editor.node.childs.length;
+  editor.node.childs[len-1].expand(false);
+</script>
+</body>
+</html>
