@@ -17,20 +17,47 @@
                 OAuth.initialize('KtHQPnf0Xywefg8q_uZHuMAmQgg')
                 OAuth.popup('github')
                     .done(function(result) {
-                        result.me()                        
-                        .done(function(response){
-                            console.log(result)
-                            console.log(response) 
-                            document.getElementById('welcome_msg').innerHTML = "Welcome " + response.name;
+
+                        console.log(result)
+
+                        //get all of the user's data    
+                        
+                        result.me()
+                        .done(function(userdata){
+                            document.getElementById('welcome_msg').innerHTML = "Welcome " + userdata.name;
                         })
                         .fail(function(err){
                            alert('Could not fetch user details') 
-                           document.getElementById('welcome_msg').innerHTML = "Could not fetch user details";
+                           //document.getElementById('welcome_msg').innerHTML = "Could not fetch user details";
                         })
+                        
+                        //get all of the user's gists
+
+                        result.get('https://api.github.com/gists')                        
+                        .done(function(usergists){
+                            console.log(usergists)                             
+                        })
+                        .fail(function(err){
+                           alert('Could not fetch user gists') 
+                        })
+
+                        //create a secret gist
+
+                        result.post('https://api.github.com/gists',{
+                            contentType: "application/json; charset=utf-8",
+                            data:'{"files": {"file6.txt": {"content":"Demo"}}}'                            
+                        })
+                        .done(function(createdgist){
+                            console.log(createdgist)
+                        })
+                        .fail(function(err){
+                            console.log(err)
+                        })
+
                     })
                     .fail(function(err){
                         alert('Could not authenticate on the github server')
-                        document.getElementById('welcome_msg').innerHTML = "Could not authenticate on the github server";
+                        //document.getElementById('welcome_msg').innerHTML = "Could not authenticate on the github server";
                     })
             }
         </script>
