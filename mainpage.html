@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">        
+        <script src="oauth.js"></script>
+        <title>Main Page</title>
+    </head>
+    <body>
+        <h1 id="welcome_msg"></h1>
+        <script language="javascript">
+
+            window.onload = function() {
+                loginGithub();
+            };
+
+            function loginGithub() {
+                OAuth.initialize('KtHQPnf0Xywefg8q_uZHuMAmQgg')
+                OAuth.popup('github')
+                    .done(function(result) {
+
+                        console.log(result)
+
+                        //get all of the user's data    
+                        
+                        result.me()
+                        .done(function(userdata){
+                            document.getElementById('welcome_msg').innerHTML = "Welcome " + userdata.name;
+                        })
+                        .fail(function(err){
+                           alert('Could not fetch user details') 
+                           //document.getElementById('welcome_msg').innerHTML = "Could not fetch user details";
+                        })
+                        
+                        //get all of the user's gists
+
+                        result.get('https://api.github.com/gists')                        
+                        .done(function(usergists){
+                            console.log(usergists)                             
+                        })
+                        .fail(function(err){
+                           alert('Could not fetch user gists') 
+                        })
+
+                        //create a secret gist
+
+                        result.post('https://api.github.com/gists',{
+                            contentType: "application/json; charset=utf-8",
+                            data:'{"files": {"file6.txt": {"content":"Demo"}}}'                            
+                        })
+                        .done(function(createdgist){
+                            console.log(createdgist)
+                        })
+                        .fail(function(err){
+                            console.log(err)
+                        })
+
+                    })
+                    .fail(function(err){
+                        alert('Could not authenticate on the github server')
+                        //document.getElementById('welcome_msg').innerHTML = "Could not authenticate on the github server";
+                    })
+            }
+        </script>
+    </body>
+</html>

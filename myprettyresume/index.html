@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">        
+        <title>Login page</title>
+    </head>
+    <body>
+        <h1>Welcome to PrettyResu.me</h1>
+        <form name="login">
+            <input type="button" onclick="loginGithub(this.form)" value="Login via Github"/>
+            <input type="button" onclick="loginAnon(this.form)" value="Login anonymously"/>
+        </form>
+        <script language="javascript">
+            function loginGithub(form) {
+                window.location = "mainpage.html"
+            }
+        </script>
+    </body>
+</html>
