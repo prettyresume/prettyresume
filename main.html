@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- json editor -->
+   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="stylesheets/liquid-slider.css">
   <link rel="stylesheet" type="text/css" href="jsoneditor.min.css">
+
   <script type="text/javascript" src="jsoneditor.min.js"></script>
 
   <!-- ace editor -->
@@ -25,23 +28,122 @@
     code {
       background-color: #f5f5f5;
     }
+    .tab1 { padding-right: 20px; }
 
     #jsoneditor {
          height: 600px;
     }
+
   </style>
 </head>
 <body>
+    <!-- MAIN CONTENT -->
+    <div id="headline" style="max-width: 790px; width: 100%;">
+        <div style="float: left; font-family: &quot;HelveticaNeue-Light&quot;,&quot;Helvetica Neue Light&quot;,&quot;Helvetica Neue&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif; font-size: 22px">
+        <span style="color: #DF01D7;">Pretty</span><b>Resu.me</b>
+       </div>
+        <button style="float: right; padding: 4px 5px; margin-left: 5px" type="button" class="btn btn-default"><i class="glyphicon glyphicon-log-out" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin: 0 5px" type="button" class="btn btn-default" onclick="upload_gist();"><i class="glyphicon glyphicon-cloud-upload" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin: 0 5px;" type="button" class="btn btn-default" onclick="get_link();"><i class="glyphicon glyphicon-link" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin-right: 5px" type="button" class="btn btn-default" onclick="download();"><i class="glyphicon glyphicon-download" style="font-size:15px;"></i></button>
+        <img src="img/loading.gif" id="loading" style="margin: auto; visibility: hidden; width: 20px; display: block">
 
-<div id="jsoneditor"></div>
+    <div class="alert alert-success alert-dismissible alert-link" id="alert-container" role="alert" style="margin-bottom: 0px; margin-top: 10px; padding: 10px; display: none">
+          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <div id="alert-msg"></div>
+        </div>
+    </div>
 
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+    <div class="liquid-slider" id="slider-id">
+         <div>
+             <h5 class="title">Input</h5>
+                <div id="jsoneditor"></div>
+         </div>
+         <div>
+             <h5 class="title">Md</h5>
+             <iframe id="md_frame" src="md_page.html" frameborder="0"  width="100%" height="1050px"></iframe>
+         </div>
+         <div>
+              <h5 class="title">HTML</h5>
+              <iframe id="frame" src="./html_version/resume_with_icons/page.html" frameborder="0"  width="100%" height="1050px"></iframe>
+        </div>
+         <div>
+              <h5 class="title">PDF</h5>
+              <div id="the-canvas" height="1800px" style="margin-left:-40px;"></div>
+        </div>
+         <div>
+              <h5 class="title">TeX*</h5>
+              <div id="the-canvas1" height="1800px" style="margin-left:-20px;"></div>
+        </div>
+    </div>
+      </section>
+    </div>
+
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" >
+function upload_gist() {
+    console.log("Uploading gist...");
+}
+function download() {
+    var locn = "./html_version/resume_with_icons/resume.pdf"
+    if('dest_dir' in window) {
+        locn = window.dest_dir + '/resume.pdf'; 
+    }
+    console.log("Fetching download from " + locn);
+    window.open(locn);
+}
+function get_link() {
+    console.log("Fetching link...");
+    var locn = "/html_version/resume_with_icons/index.html"
+    if(window.dest_dir != "") {
+        locn = window.dest_dir + '/resume/index.html'; 
+    }
+    var longURL = 'http://' + window.location.host + locn;
+
+    $.ajax({
+        url: 'https://www.googleapis.com/urlshortener/v1/url',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        data: '{ longUrl: "' + longURL +'"}',
+        dataType: 'json',
+        success: function(response) {
+        document.getElementById('alert-msg').innerHTML = "Success! Share your profile link: <a href='" + response['id'] + "' target='_blank'>" + response['id'] + "</a> ";
+            document.getElementById('alert-container').style.display = 'inherit';
+        }
+     });
+
+}
   var container = document.getElementById('jsoneditor');
+  window.dest_dir = "";
 
   var options = {
     mode: 'tree',
     name: 'resume',
     modes: ['tree', 'code'], //['code', 'form', 'text', 'tree', 'view'], // allowed modes
+    change: function() {
+        new_len = editor.getText().length;
+        new_date = new Date();
+        if(window.active != true && ( !("last_json_len" in window) || Math.abs(new_len - last_json_len) > 10 || (new_date.getTime() - last_date.getTime() > 3000))) {
+            window.last_json_len = new_len;
+            window.last_date = new_date;
+            document.getElementById('loading').style.visibility = 'visible';
+            window.active = true;
+
+            $.post( "/convert", { input: editor.getText() })
+              .done(function( data ) {
+                    console.log( "Data Loaded: " + data );
+                    document.getElementById('md_frame').src = data + '/md_page.html';
+                    document.getElementById('frame').src = data + '/resume/page.html';
+                    PDFJS.getDocument(data + '/resume.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
+                    document.getElementById('loading').style.visibility = 'hidden';
+                    window.active = false;
+                    window.dest_dir = data;
+                });
+        }
+    },
     error: function (err) {
       alert(err.toString());
     },
@@ -68,5 +170,24 @@
   len = editor.node.childs.length;
   editor.node.childs[len-1].expand(false);
 </script>
+
 </body>
 </html>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+<script src="javascripts/jquery.touchSwipe.min.js"></script>
+<script src="javascripts/jquery.liquid-slider.min.js"></script>
+<script src="javascripts/pdf.js"></script>
+<script src="javascripts/latex.js"></script>
+<script type="text/javascript">
+$('#slider-id').liquidSlider({
+         hideSideArrows: true,
+         includeTitle: false,
+         dynamicTabsAlign: "center",
+         continuous: false,
+         slideEaseDuration: 550,
+         callback: function(){ window.slider = this; }
+         });
+document.getElementById('slider-id-nav-ul').style.setProperty('width', 0);
+document.getElementById('slider-id-nav-ul').style.setProperty('display', 'inline');
+</script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
