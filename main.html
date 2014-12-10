@@ -77,11 +77,11 @@
               <iframe id="frame" src="./html_version/resume_with_icons/page.html" frameborder="0"  width="100%" height="1050px"></iframe>
         </div>
          <div>
-              <h5 class="title">PDF</h5>
+              <h5 class="title">Tex</h5>
               <div id="the-canvas" height="1800px" style="margin-left:-40px;"></div>
         </div>
          <div>
-              <h5 class="title">TeX*</h5>
+              <h5 class="title">Classic</h5>
               <div id="the-canvas1" height="1800px" style="margin-left:-20px;"></div>
         </div>
     </div>
@@ -106,7 +106,8 @@ function json_change() {
           .done(function( data ) {
                 document.getElementById('md_frame').src = data + '/md_page.html';
                 document.getElementById('frame').src = data + '/resume/page.html';
-                PDFJS.getDocument(data + '/resume_html.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
+                PDFJS.getDocument(data + '/resume_tex.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
+                PDFJS.getDocument(data + '/resume_tex_classic.pdf').then(function(pdf) { document.getElementById('the-canvas1').innerHTML = ""; thePDF2 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages1 ); });
                 document.getElementById('loading').style.visibility = 'hidden';
                 window.active = false;
                 window.dest_dir = data;
@@ -143,7 +144,7 @@ function populate_dropdown() {
 }
 
 function loginGithub() {
-    OAuth.initialize('KtHQPnf0Xywefg8q_uZHuMAmQgg')
+    OAuth.initialize('k7ksMszw4tJB--WEjlwc3i1DvgQ')
     OAuth.popup('github')
         .done(function(result) {
             window.github_auth = result
@@ -255,7 +256,7 @@ function upload_gist() {
 function download() {
     var locn = "./html_version/resume_with_icons/resume.pdf"
     if('dest_dir' in window) {
-        locn = window.dest_dir + '/resume.pdf'; 
+        locn = window.dest_dir + '/resume_html.pdf'; 
     }
     console.log("Fetching download from " + locn);
     window.open(locn);
