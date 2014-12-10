@@ -1,19 +1,40 @@
 <html>
-    <head>
-        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-        <meta content="utf-8" http-equiv="encoding">        
-        <title>Login page</title>
-    </head>
-    <body>
-        <h1>Welcome to PrettyResu.me</h1>
-        <form name="login">
-            <input type="button" onclick="loginGithub(this.form)" value="Login via Github"/>
-            <input type="button" onclick="loginAnon(this.form)" value="Login anonymously"/>
-        </form>
-        <script language="javascript">
-            function loginGithub(form) {
-                window.location = "mainpage.html"
-            }
-        </script>
-    </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PrettyResume</title>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="gh-btn.css" />
+  <link rel="stylesheet" type="text/css" href="index.css" />
+</head>
+<body>
+  <div id="wrap">
+      <div class="container">
+        <div class="page-header">
+            <h1><a href="/" class="lead" style="font-size: 80%"><span style="color: #DF01D7;">Pretty</span><b>Resume</b></a><small style="font-size: 50%"><br/> Create & share resume in seconds! </small></h1>
+        </div>
+        <div class="row" style="text-align: center; padding: 30px; margin: 0 auto; max-width: 300px">
+
+
+            <ul class="list-group">
+                <li class="list-group-item"><span class="glyphicon glyphicon-flash" aria-hidden="true" style="float:left"></span> Real time updates</li>
+              <li class="list-group-item"><span class="glyphicon glyphicon-user" aria-hidden="true" style="float:left"></span> Data stored with user</li>
+              <li class="list-group-item"><span class="glyphicon glyphicon-link" aria-hidden="true" style="float:left"></span> Shareable links</li>
+              <li class="list-group-item"><span class="glyphicon glyphicon-time" aria-hidden="true" style="float:left"></span> Revision History</li>
+              <li class="list-group-item"><span class="glyphicon glyphicon-cog" aria-hidden="true" style="float:left"></span> Multiple formats</li>
+              <li class="list-group-item"><span class="glyphicon glyphicon-phone" aria-hidden="true" style="float:left"></span> Responsive Design</li>
+            </ul>
+          <button class="btn btn-default btn-primary btn-lg" type="button" onclick="window.location='/main.html'"><span class="gh-ico white-gh-ico"></span> Login with GitHub</button>
+            <br/><span style="font-size: 80%"><a href="/main.html?anon=true">Or Just annonymous</a></span>
+        </div><!-- /.row -->
+    </div>
+  </div>
+  <div id="footer">
+         <a role="button" class="btn btn-default btn-primary btn-xs" id="footer-button" href="http://github.com/prettyresume/prettyresume/issues/new">
+          <span class="glyphicon glyphicon-envelope"></span> Feedback/Suggestions</a>
+  </div>
+</body>
 </html>

@@ -1,0 +1,85 @@
+.height-120 {
+	height: 120px;
+	text-align: center;
+	font-size: 200%;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	background-color: #EBF1F5;
+}
+
+a {
+    text-decoration: none; 
+    color: inherit; 
+}
+
+#ribbon {
+	position:absolute; 
+	top: 0; 
+	right: 0; 
+	border: 0;
+}
+
+.page-header {
+	margin:0 0 30px;
+}
+
+#username-text {
+	float:right; 
+	line-height: 2; 
+	margin-right:10px
+}
+
+#category {
+	width:30%; 
+	float:left; 
+	margin:5px; 
+	padding-top: 60px;
+}
+
+#footer {
+    padding-top: 40px;
+}
+
+#footer-button {
+	margin:auto; 
+	display:block; 
+	width:150px
+}
+
+.container {
+	padding-top: 30px;
+}
+
+.loading
+{
+    display: none;
+    width:100px;
+    height: 100px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background:url('spinner.gif') no-repeat center;
+    text-align:center;
+    padding:10px;
+    z-index:2;
+    overflow: auto;
+    -moz-border-radius: 45px;
+    border-radius: 45px;
+}
+
+.white-gh-ico {
+	background-position: -25px -21px;
+	height: 22px;
+	width: 22px;
+}
+
+#wrap {
+    height: auto !important;
+    margin: 0 auto -60px;
+    min-height: 100%;
+}
+
+html, body {
+    height: 100%;
+}

@@ -39,13 +39,20 @@
 <body>
     <!-- MAIN CONTENT -->
     <div id="headline" style="max-width: 790px; width: 100%;">
-        <div style="float: left; font-family: &quot;HelveticaNeue-Light&quot;,&quot;Helvetica Neue Light&quot;,&quot;Helvetica Neue&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif; font-size: 22px">
+        <div style="float: left; font-family: &quot;HelveticaNeue-Light&quot;,&quot;Helvetica Neue Light&quot;,&quot;Helvetica Neue&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif; font-size: 20px">
         <span style="color: #DF01D7;">Pretty</span><b>Resu.me</b>
        </div>
-        <button style="float: right; padding: 4px 5px; margin-left: 5px" type="button" class="btn btn-default"><i class="glyphicon glyphicon-log-out" style="font-size:15px;"></i></button>
-        <button style="float: right; padding: 4px 5px; margin: 0 5px" type="button" class="btn btn-default" onclick="upload_gist();"><i class="glyphicon glyphicon-cloud-upload" style="font-size:15px;"></i></button>
+       <button style="float: right; padding: 4px 5px; margin-left: 5px;" type="button" class="btn btn-default" id="login-container" onclick="window.location.href = '/index.html'"><i class="glyphicon glyphicon-log-out" style="font-size:15px;"></i></button>
+       <div  style="float: right; font-size: 10px" id="login-id"></div>
+        <button id="upload-container" style="float: right; padding: 4px 5px; margin: 0 5px; display: none" type="button" class="btn btn-default" onclick="upload_gist();"><i class="glyphicon glyphicon-cloud-upload" style="font-size:15px;"></i></button>
         <button style="float: right; padding: 4px 5px; margin: 0 5px;" type="button" class="btn btn-default" onclick="get_link();"><i class="glyphicon glyphicon-link" style="font-size:15px;"></i></button>
-        <button style="float: right; padding: 4px 5px; margin-right: 5px" type="button" class="btn btn-default" onclick="download();"><i class="glyphicon glyphicon-download" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin: 0 5px" type="button" class="btn btn-default" onclick="download();"><i class="glyphicon glyphicon-download" style="font-size:15px;"></i></button>
+    <div class="dropdown" style="float: right; display: none" id="dropdown-container">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true" style="float: right; padding: 4px 5px; margin-right: 5px" >
+        <i class="glyphicon glyphicon-th-list" style="font-size:15px;"></i>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" id="commits"> </ul>
+    </div>
         <img src="img/loading.gif" id="loading" style="margin: auto; visibility: hidden; width: 20px; display: block">
 
     <div class="alert alert-success alert-dismissible alert-link" id="alert-container" role="alert" style="margin-bottom: 0px; margin-top: 10px; padding: 10px; display: none">
@@ -83,9 +90,167 @@
 
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="javascripts/oauth.min.js"></script>
 <script type="text/javascript" >
+
+function json_change() {
+    new_len = editor.getText().length;
+    new_date = new Date();
+    if(window.active != true && ( !("last_json_len" in window) || Math.abs(new_len - last_json_len) > 10 || (new_date.getTime() - last_date.getTime() > 3000))) {
+        window.last_json_len = new_len;
+        window.last_date = new_date;
+        document.getElementById('loading').style.visibility = 'visible';
+        window.active = true;
+
+        $.post( "/convert", { input: editor.getText() })
+          .done(function( data ) {
+                document.getElementById('md_frame').src = data + '/md_page.html';
+                document.getElementById('frame').src = data + '/resume/page.html';
+                PDFJS.getDocument(data + '/resume.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
+                document.getElementById('loading').style.visibility = 'hidden';
+                window.active = false;
+                window.dest_dir = data;
+            });
+    }
+}
+
+function set_text(text) {
+  editor.setText(text);
+  len = editor.node.childs.length;
+  editor.node.childs[len-1].expand(false);
+  json_change();
+}
+
+function set_commit(commit_url) {
+  xmlHttp = new XMLHttpRequest();
+  xmlHttp.open( "GET", commit_url, false );
+  xmlHttp.send( null );
+  content = JSON.parse(xmlHttp.responseText)['files']['prettyresume.json']['content'];
+  set_text(content);
+}
+
+function populate_dropdown() {
+    github_auth.get('https://api.github.com/gists/' + window.gist_id + '/commits')
+    .done(function(commits){
+        document.getElementById('commits').innerHTML = "";
+        for(var i = 0; i < commits.length; i++) {
+            commit_url = commits[i]['url']
+            document.getElementById('commits').insertAdjacentHTML('beforeend', '<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="set_commit(\''+commit_url + '\');">Rev '+(commits.length - i - 1)+': '+commits[i]['committed_at'] + '</a></li>');
+        }
+    }).fail(function(err){
+        console.log(err);
+    });
+}
+
+function loginGithub() {
+    OAuth.initialize('KtHQPnf0Xywefg8q_uZHuMAmQgg')
+    OAuth.popup('github')
+        .done(function(result) {
+            window.github_auth = result
+
+            result.me()
+            .done(function(userdata){
+                window.login = userdata.alias;
+                document.getElementById('login-id').innerHTML = window.login;
+                //document.getElementById('login-container').style.display = 'inherit';
+                document.getElementById('dropdown-container').style.display = 'inherit';
+                document.getElementById('upload-container').style.display = 'inherit';
+            }).fail(function(err){
+                console.log(err);
+            })
+            
+            result.get('https://api.github.com/gists')                        
+            .done(function(usergists){
+                var found = false;
+                for(var i = 0; i < usergists.length && found == false; i++) {
+                    files = usergists[i]['files']
+                    for (var file in files) {
+                        if (files.hasOwnProperty(file)) {
+                            if(file == 'prettyresume.json') {
+                                found = true;
+                                contents = files[file];
+                                window.gist_url = contents['raw_url'];
+                                window.gist_id = usergists[i]['id'];
+                                 
+                                if(editor) {
+                                  xmlHttp = new XMLHttpRequest();
+                                  xmlHttp.open( "GET", window.gist_url, false );
+                                  xmlHttp.send( null );
+                                  set_text(xmlHttp.responseText);
+                                }
+
+                                populate_dropdown();
+                            }
+                        }
+                    }
+                }
+            })
+            .fail(function(err){
+               alert('Could not fetch user gists') 
+            })
+
+        })
+        .fail(function(err){
+            console.log(err);
+            console.log('Could not authenticate on the github server')
+        })
+}
+
+function getSearchParameters() {
+      var prmstr = window.location.search.substr(1);
+      return prmstr != null && prmstr != "" ? transformToAssocArray(prmstr) : {};
+}
+
+function transformToAssocArray( prmstr ) {
+    var params = {};
+    var prmarr = prmstr.split("&");
+    for ( var i = 0; i < prmarr.length; i++) {
+        var tmparr = prmarr[i].split("=");
+        params[tmparr[0]] = tmparr[1];
+    }
+    return params;
+}
+
+var params = getSearchParameters();
+
+if (!('anon' in params)) {
+    loginGithub();
+}
+
 function upload_gist() {
     console.log("Uploading gist...");
+
+    contents = {}
+    var file_name = 'prettyresume' + '.json';
+    contents[file_name] = {'content': editor.getText()}
+    content = {'files': contents};
+
+    if('gist_id' in window) {
+        github_auth.patch('https://api.github.com/gists/' + window.gist_id,{
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(content)
+        })
+        .done(function(createdgist){
+            document.getElementById('alert-msg').innerHTML = "Success! Your changes are uploaded <a href='" + createdgist['html_url'] + "' target='_blank'>" + "here. </a> ";
+            document.getElementById('alert-container').style.display = 'inherit';
+            setTimeout(function(){ populate_dropdown(); }, 10000);
+        })
+        .fail(function(err){
+            console.log(err)
+        })
+    } else {
+        github_auth.post('https://api.github.com/gists',{
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(content)
+        })
+        .done(function(createdgist){
+            document.getElementById('alert-msg').innerHTML = "Success! Your changes are uploaded <a href='" + createdgist['html_url'] + "' target='_blank'>" + "here. </a> ";
+                document.getElementById('alert-container').style.display = 'inherit';
+        })
+        .fail(function(err){
+            console.log(err)
+        })
+    }
 }
 function download() {
     var locn = "./html_version/resume_with_icons/resume.pdf"
@@ -123,27 +288,7 @@ function get_link() {
     mode: 'tree',
     name: 'resume',
     modes: ['tree', 'code'], //['code', 'form', 'text', 'tree', 'view'], // allowed modes
-    change: function() {
-        new_len = editor.getText().length;
-        new_date = new Date();
-        if(window.active != true && ( !("last_json_len" in window) || Math.abs(new_len - last_json_len) > 10 || (new_date.getTime() - last_date.getTime() > 3000))) {
-            window.last_json_len = new_len;
-            window.last_date = new_date;
-            document.getElementById('loading').style.visibility = 'visible';
-            window.active = true;
-
-            $.post( "/convert", { input: editor.getText() })
-              .done(function( data ) {
-                    console.log( "Data Loaded: " + data );
-                    document.getElementById('md_frame').src = data + '/md_page.html';
-                    document.getElementById('frame').src = data + '/resume/page.html';
-                    PDFJS.getDocument(data + '/resume.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
-                    document.getElementById('loading').style.visibility = 'hidden';
-                    window.active = false;
-                    window.dest_dir = data;
-                });
-        }
-    },
+    change: json_change,
     error: function (err) {
       alert(err.toString());
     },
@@ -160,6 +305,9 @@ function get_link() {
 
   var xmlHttp = null;
   var theUrl = "https://gist.githubusercontent.com/prat0318/6e57f270bcf710a9087f/raw/a9b24e09d97ecd54fe59c5e164314a8f2b560cd8/resume.json";
+  if('gist_url' in window)
+    theUrl = window.gist_url;
+  console.log('Loading...' + theUrl);
 
   xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", theUrl, false );
@@ -189,5 +337,6 @@ $('#slider-id').liquidSlider({
          });
 document.getElementById('slider-id-nav-ul').style.setProperty('width', 0);
 document.getElementById('slider-id-nav-ul').style.setProperty('display', 'inline');
+
 </script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
