@@ -106,7 +106,7 @@ function json_change() {
           .done(function( data ) {
                 document.getElementById('md_frame').src = data + '/md_page.html';
                 document.getElementById('frame').src = data + '/resume/page.html';
-                PDFJS.getDocument(data + '/resume.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
+                PDFJS.getDocument(data + '/resume_html.pdf').then(function(pdf) { document.getElementById('the-canvas').innerHTML = ""; thePDF1 = pdf; numPages = pdf.numPages; pdf.getPage( 1 ).then( handlePages ); });
                 document.getElementById('loading').style.visibility = 'hidden';
                 window.active = false;
                 window.dest_dir = data;
