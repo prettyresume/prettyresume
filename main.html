@@ -40,15 +40,15 @@
     <!-- MAIN CONTENT -->
     <div id="headline" style="max-width: 790px; width: 100%;">
         <div style="float: left; font-family: &quot;HelveticaNeue-Light&quot;,&quot;Helvetica Neue Light&quot;,&quot;Helvetica Neue&quot;,Helvetica,Arial,&quot;Lucida Grande&quot;,sans-serif; font-size: 20px">
-        <span style="color: #DF01D7;">Pretty</span><b>Resu.me</b>
+       <a href="/" style="color: #000"><span style="color: #DF01D7;">Pretty</span><b>Resu.me</b></a>
        </div>
-       <button style="float: right; padding: 4px 5px; margin-left: 5px;" type="button" class="btn btn-default" id="login-container" onclick="window.location.href = '/index.html'"><i class="glyphicon glyphicon-log-out" style="font-size:15px;"></i></button>
+       <button style="float: right; padding: 4px 5px; margin-left: 5px;" type="button" class="btn btn-default" id="login-container" onclick="window.location.href = '/index.html'" title="Sign Out"><i class="glyphicon glyphicon-log-out" style="font-size:15px;"></i></button>
        <div  style="float: right; font-size: 10px" id="login-id"></div>
-        <button id="upload-container" style="float: right; padding: 4px 5px; margin: 0 5px; display: none" type="button" class="btn btn-default" onclick="upload_gist();"><i class="glyphicon glyphicon-cloud-upload" style="font-size:15px;"></i></button>
-        <button style="float: right; padding: 4px 5px; margin: 0 5px;" type="button" class="btn btn-default" onclick="get_link();"><i class="glyphicon glyphicon-link" style="font-size:15px;"></i></button>
-        <button style="float: right; padding: 4px 5px; margin: 0 5px" type="button" class="btn btn-default" onclick="download();"><i class="glyphicon glyphicon-download" style="font-size:15px;"></i></button>
+        <button id="upload-container" style="float: right; padding: 4px 5px; margin: 0 5px; display: none" type="button" class="btn btn-default" onclick="upload_gist();" title="Upload"><i class="glyphicon glyphicon-cloud-upload" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin: 0 5px;" type="button" class="btn btn-default" onclick="get_link();" title="Share"><i class="glyphicon glyphicon-link" style="font-size:15px;"></i></button>
+        <button style="float: right; padding: 4px 5px; margin: 0 5px" type="button" class="btn btn-default" onclick="download();" title="Download"><i class="glyphicon glyphicon-download" style="font-size:15px;"></i></button>
     <div class="dropdown" style="float: right; display: none" id="dropdown-container">
-      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true" style="float: right; padding: 4px 5px; margin-right: 5px" >
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true" style="float: right; padding: 4px 5px; margin-right: 5px" title="Revisions">
         <i class="glyphicon glyphicon-th-list" style="font-size:15px;"></i>
       </button>
       <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" id="commits"> </ul>
@@ -255,7 +255,7 @@ function upload_gist() {
 }
 function download() {
     var locn = "./html_version/resume_with_icons/resume.pdf"
-    if('dest_dir' in window) {
+    if(window.dest_dir != "") {
         locn = window.dest_dir + '/resume_html.pdf'; 
     }
     console.log("Fetching download from " + locn);
